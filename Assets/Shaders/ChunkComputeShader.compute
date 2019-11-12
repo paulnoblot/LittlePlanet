@@ -1,0 +1,30 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CreateMeshCentered
+
+struct ChunkParams
+{
+	int size;
+	float1 step;
+	float1 halfSize;
+	float3 offset;
+};
+
+RWStructuredBuffer<ChunkParams> params;
+RWStructuredBuffer<float3> vertices;
+
+[numthreads(1, 1, 1)]
+void CreateMeshCentered(uint3 id : SV_DispatchThreadID)
+{
+	int i;
+	for (int x = 0; x < params[0].size; ++x)
+	{
+		for (int y = 0; y < params[0].size; ++y)
+		{
+			i = y * params[0].size + x;
+
+			vertices[i] = float3(x * params[0].step, y * params[0].step, 0);
+			vertices[i] += params[0].offset;
+			vertices[i].xy -= params[0].halfSize.xx;
+		}
+	}
+}
